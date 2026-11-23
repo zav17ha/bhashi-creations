@@ -1,10 +1,11 @@
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import { issueSignedToken } from "@vercel/blob";
+import { handleUpload, handleUploadPresigned, type HandleUploadBody, type HandleUploadPresignedBody } from "@vercel/blob/client";
 import { randomBytes } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/auth";
-import { deleteUnusedMedia, LOCAL_MEDIA_PREFIX, LOCAL_UPLOADS, storageMode } from "@/lib/store";
+import { blobAuthMode, deleteUnusedMedia, LOCAL_MEDIA_PREFIX, LOCAL_UPLOADS, storageMode } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -14,9 +15,17 @@ const MAX_BYTES = 500 * 1024 * 1024; // 500 MB
 
 const unauthorized = () => NextResponse.json({ error: "Please sign in again." }, { status: 401 });
 
+/** Tells the admin which upload method this deployment uses. */
+export async function GET() {
+  if (!(await isAdmin())) return unauthorized();
+  const mode = storageMode();
+  return NextResponse.json({ mode: mode === "blob" ? (blobAuthMode() === "oidc" ? "presigned" : "token") : mode });
+}
+
 /**
- * Blob mode: issues a short-lived token so the browser uploads straight to
- * Vercel Blob (no 4.5 MB serverless body limit).
+ * Blob mode: the browser uploads straight to Vercel Blob (no 4.5 MB serverless body limit).
+ *  - Classic token stores: issues a short-lived client token (handleUpload).
+ *  - OIDC stores (BLOB_STORE_ID): issues a presigned upload URL (handleUploadPresigned).
  * Local mode: receives the file and writes it to ./.data/uploads.
  */
 export async function POST(req: Request) {
@@ -25,7 +34,28 @@ export async function POST(req: Request) {
 
   if (mode === "blob") {
     try {
-      const body = (await req.json()) as HandleUploadBody;
+      const raw = await req.json();
+      const allowed = [...IMAGE_TYPES, ...VIDEO_TYPES];
+      if (raw?.type === "blob.generate-presigned-url") {
+        const result = await handleUploadPresigned({
+          body: raw as HandleUploadPresignedBody,
+          request: req,
+          // Only used to verify upload-finished callbacks, which this site does not request.
+          webhookPublicKey: process.env.BLOB_WEBHOOK_PUBLIC_KEY || "unused",
+          getSignedToken: async (pathname) => {
+            if (!pathname.startsWith("portfolio/")) throw new Error("Invalid upload path.");
+            const token = await issueSignedToken({
+              pathname,
+              operations: ["put"],
+              allowedContentTypes: allowed,
+              maximumSizeInBytes: MAX_BYTES,
+            });
+            return { token, urlOptions: { addRandomSuffix: true, allowedContentTypes: allowed, maximumSizeInBytes: MAX_BYTES } };
+          },
+        });
+        return NextResponse.json(result);
+      }
+      const body = raw as HandleUploadBody;
       const result = await handleUpload({
         body,
         request: req,

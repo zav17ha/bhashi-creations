@@ -21,6 +21,8 @@ export default async function AdminPage() {
   }
   if (!(await isAdmin())) return <AdminLogin />;
   const [{ projects, fromSeed }, clients] = await Promise.all([readProjects(), readClients()]);
+  // Names only (never values), to help diagnose an unconnected store.
+  const blobEnv = Object.keys(process.env).filter((k) => /BLOB/i.test(k)).sort();
   return (
     <AdminApp
       initial={projects}
@@ -28,6 +30,7 @@ export default async function AdminPage() {
       storage={storageMode()}
       clients={clients.groups}
       clientsFromSeed={clients.fromSeed}
+      blobEnv={blobEnv}
     />
   );
 }

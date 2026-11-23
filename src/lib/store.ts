@@ -1,8 +1,10 @@
 /**
  * Site content storage (server only): projects and client brands.
  *
- *  - On Vercel with a Blob store connected (BLOB_READ_WRITE_TOKEN set):
- *    the lists + media live in Vercel Blob.
+ *  - On Vercel with a Blob store connected: the lists + media live in Vercel Blob.
+ *    A store can be connected two ways and both are supported:
+ *      · BLOB_READ_WRITE_TOKEN (classic token), or
+ *      · BLOB_STORE_ID + Vercel's built-in OIDC identity (newer stores).
  *  - Locally without a token: everything is written to ./.data so the admin
  *    can be tried out with `npm run dev`.
  *  - Until something is saved, the starter content in src/content/ is used.
@@ -17,8 +19,15 @@ import { clientGroups as seedClients, type ClientGroup } from "@/content/site";
 
 export type StorageMode = "blob" | "local" | "none";
 
+/** How the connected Blob store authenticates, or null if none is connected. */
+export function blobAuthMode(): "token" | "oidc" | null {
+  if (process.env.BLOB_READ_WRITE_TOKEN?.trim()) return "token";
+  if (process.env.BLOB_STORE_ID?.trim()) return "oidc";
+  return null;
+}
+
 export function storageMode(): StorageMode {
-  if (process.env.BLOB_READ_WRITE_TOKEN) return "blob";
+  if (blobAuthMode()) return "blob";
   if (process.env.VERCEL) return "none"; // deployed but no Blob store connected
   return "local";
 }

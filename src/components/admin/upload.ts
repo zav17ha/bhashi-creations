@@ -1,6 +1,16 @@
-import { upload } from "@vercel/blob/client";
+import { upload, uploadPresigned } from "@vercel/blob/client";
 
 export type StorageMode = "blob" | "local" | "none";
+
+let blobMethod: Promise<"token" | "presigned"> | null = null;
+/** Asks the server once which Blob upload method this deployment uses. */
+function getBlobMethod() {
+  blobMethod ??= fetch("/api/admin/upload")
+    .then((r) => r.json())
+    .then((j) => (j.mode === "presigned" ? "presigned" : "token") as "token" | "presigned")
+    .catch(() => "token" as const);
+  return blobMethod;
+}
 
 /** Uploads one file and resolves with its public URL. */
 export async function uploadFile(
@@ -12,10 +22,13 @@ export async function uploadFile(
   if (mode === "none") throw new Error("Storage is not connected yet.");
   if (mode === "blob") {
     const safe = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-");
-    const res = await upload(`portfolio/${folder || "untitled"}/${safe}`, file, {
+    const method = await getBlobMethod();
+    const send = method === "presigned" ? uploadPresigned : upload;
+    const res = await send(`portfolio/${folder || "untitled"}/${safe}`, file, {
       access: "public",
       handleUploadUrl: "/api/admin/upload",
-      multipart: file.size > 20 * 1024 * 1024,
+      // Multipart needs extra server support for presigned uploads, so it is only used with classic tokens.
+      multipart: method === "token" && file.size > 20 * 1024 * 1024,
       onUploadProgress: (e) => onProgress(Math.round(e.percentage)),
     });
     return res.url;

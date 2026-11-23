@@ -14,12 +14,13 @@ type Props = {
   storage: StorageMode;
   clients: ClientGroup[];
   clientsFromSeed: boolean;
+  blobEnv?: string[];
 };
 type Tab = "portfolio" | "apparel" | "brands";
 
 const isApparel = (p: Project) => p.category === "Apparel";
 
-export function AdminApp({ initial, fromSeed: seed, storage, clients, clientsFromSeed }: Props) {
+export function AdminApp({ initial, fromSeed: seed, storage, clients, clientsFromSeed, blobEnv = [] }: Props) {
   const [projects, setProjects] = useState(initial);
   const [fromSeed, setFromSeed] = useState(seed);
   const [tab, setTab] = useState<Tab>("portfolio");
@@ -147,8 +148,13 @@ export function AdminApp({ initial, fromSeed: seed, storage, clients, clientsFro
 
       {storage === "none" && (
         <div className="notice notice--warn">
-          <strong>Storage isn&rsquo;t connected.</strong> In the Vercel dashboard open this project → Storage → Create → Blob, connect it,
-          then redeploy. Until then nothing can be saved.
+          <strong>Storage isn&rsquo;t connected to this deployment.</strong> In Vercel, open this project, then Storage, and
+          make sure the Blob store is connected to <em>Production</em> (and Preview if you use it). Then open Deployments
+          and <em>Redeploy</em>: a store only reaches deployments made after it was connected.
+          <br />
+          <span className="mono notice__env">
+            Blob settings this deployment can see: {blobEnv.length ? blobEnv.join(", ") : "none"}
+          </span>
         </div>
       )}
       {tab === "brands" ? (
