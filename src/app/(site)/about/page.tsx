@@ -67,7 +67,7 @@ export default function About() {
             <dl className="facts">
               <div><dt className="mono">Role</dt><dd>{site.ownerRole}</dd></div>
               <div><dt className="mono">Also</dt><dd>Director, Dudes (Pvt) Ltd · Director, <a className="u-link" href={site.craxe.href} target="_blank" rel="noreferrer">Craxe (Pvt) Ltd</a> · Co-Founder, MX3 Esports</dd></div>
-              <div><dt className="mono">Disciplines</dt><dd>Marketing · GFX · 3D · VFX · Motion · Apparel</dd></div>
+              <div><dt className="mono">Perspectives</dt><dd>Marketing · GFX · 3D · VFX · Motion · Apparel</dd></div>
               <div><dt className="mono">Based in</dt><dd>{site.location}</dd></div>
             </dl>
           </Reveal>

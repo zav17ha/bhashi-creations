@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Reveal, SplitText } from "@/components/Reveal";
+import { ServiceIcon } from "@/components/ServiceIcon";
 import { TLink } from "@/components/TLink";
 import { services } from "@/content/site";
 import { slugify } from "@/lib/validate";
@@ -22,10 +23,10 @@ export default function Services() {
     <>
       <section className="page-hero container">
         <p className="eyebrow">Services</p>
-        <SplitText as="h1" className="display" text={"Six disciplines.\nOne vision."} stagger={80} />
+        <SplitText as="h1" className="display" text={"Six perspectives.\nOne vision."} stagger={80} />
         <Reveal delay={350}>
           <p className="lead page-hero__lead">
-            Hire one discipline or the whole studio. Either way, one creative eye across everything your brand puts out.
+            Hire one perspective or the whole studio. Either way, one creative eye across everything your brand puts out.
           </p>
         </Reveal>
       </section>
@@ -37,7 +38,7 @@ export default function Services() {
             {services.map((s) => (
               <li key={s.code}>
                 <a href={`#${slugify(s.title)}`}>
-                  <span className="mono">{s.code}</span>
+                  <ServiceIcon code={s.code} />
                   {s.title}
                 </a>
               </li>

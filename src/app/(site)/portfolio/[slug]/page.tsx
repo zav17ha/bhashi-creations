@@ -45,7 +45,7 @@ export default async function ProjectPage({ params }: Props) {
         <Reveal delay={300}>
           <dl className="project-meta">
             {project.client && (<div><dt className="mono">Client</dt><dd>{project.client}</dd></div>)}
-            <div><dt className="mono">Discipline</dt><dd>{project.category}</dd></div>
+            <div><dt className="mono">Perspective</dt><dd>{project.category}</dd></div>
             {project.services?.length ? (<div><dt className="mono">Services</dt><dd>{project.services.join(", ")}</dd></div>) : null}
             {project.year && (<div><dt className="mono">Year</dt><dd>{project.year}</dd></div>)}
           </dl>

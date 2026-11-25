@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Project } from "@/content/projects";
 import type { ClientGroup } from "@/content/site";
 import { BrandsPanel } from "./BrandsPanel";
+import { CategoriesPanel } from "./CategoriesPanel";
 import { Mark } from "../Mark";
 import { ProjectEditor } from "./ProjectEditor";
 import type { StorageMode } from "./upload";
@@ -15,12 +16,14 @@ type Props = {
   clients: ClientGroup[];
   clientsFromSeed: boolean;
   blobEnv?: string[];
+  categories: string[];
 };
 type Tab = "portfolio" | "apparel" | "brands";
 
 const isApparel = (p: Project) => p.category === "Apparel";
 
-export function AdminApp({ initial, fromSeed: seed, storage, clients, clientsFromSeed, blobEnv = [] }: Props) {
+export function AdminApp({ initial, fromSeed: seed, storage, clients, clientsFromSeed, blobEnv = [], categories: initialCategories }: Props) {
+  const [categories, setCategories] = useState(initialCategories);
   const [projects, setProjects] = useState(initial);
   const [fromSeed, setFromSeed] = useState(seed);
   const [tab, setTab] = useState<Tab>("portfolio");
@@ -85,6 +88,7 @@ export function AdminApp({ initial, fromSeed: seed, storage, clients, clientsFro
         <ProjectEditor
           key={`${tab}-${editing}`}
           variant={apparelTab ? "apparel" : "portfolio"}
+          categories={categories}
           project={current}
           storage={storage}
           takenSlugs={projects.filter((p) => p !== current).map((p) => p.slug)}
@@ -180,6 +184,18 @@ export function AdminApp({ initial, fromSeed: seed, storage, clients, clientsFro
                 : "Changes publish to the live site immediately.")}
         </p>
       </div>
+
+      {!apparelTab && (
+        <CategoriesPanel
+          categories={categories}
+          projects={projects}
+          locked={storage === "none"}
+          onSaved={(cats, updated) => {
+            setCategories(cats);
+            if (updated) setProjects(updated);
+          }}
+        />
+      )}
 
       {visible.length === 0 ? (
         <p className="muted admin-empty">{apparelTab ? "No kits yet. Add the first one." : "No projects yet."}</p>

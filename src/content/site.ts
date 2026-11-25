@@ -27,7 +27,7 @@ export const site = {
   disciplines: ["Digital Marketing", "Graphic Design", "3D", "VFX", "Motion", "Esports Apparel"],
   socials: [
     { label: "Facebook", href: "https://www.facebook.com/BhashiCreations.lk" },
-    { label: "Instagram", href: "https://www.instagram.com/bhashicreations" },
+    { label: "Instagram", href: "https://www.instagram.com/bhashi_47/" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/dhanika-bhashitha-2410b9324/" },
     { label: "WhatsApp", href: "https://wa.me/94743279381" },
     { label: "Linktree", href: "https://linktr.ee/bhashicreations0" },

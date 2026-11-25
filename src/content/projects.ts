@@ -15,9 +15,11 @@
  * Without a `cover` image the site draws a generated cover in the brand colours.
  */
 
-/** Projects in "Apparel" also appear on the /apparel page. */
-export const categories = ["Apparel", "Graphic Design", "3D", "VFX & Video", "Motion", "Marketing"] as const;
-export type Category = (typeof categories)[number];
+/** Reserved category: these projects are kits shown only on the /apparel page. */
+export const APPAREL = "Apparel";
+/** Starter portfolio categories. After the first save in /admin, the admin's list is used. */
+export const starterCategories = ["Graphic Design", "3D", "VFX & Video", "Motion", "Marketing"];
+export type Category = string;
 
 export type Project = {
   slug: string;

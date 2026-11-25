@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/auth";
-import { deleteUnusedMedia, mediaOf, readProjects, saveProjects, storageMode } from "@/lib/store";
+import { deleteUnusedMedia, mediaOf, readCategories, readProjects, saveProjects, storageMode } from "@/lib/store";
 import { cleanProjects } from "@/lib/validate";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +19,8 @@ export async function PUT(req: Request) {
   let next;
   try {
     const body = await req.json();
-    next = cleanProjects(body?.projects);
+    const { categories } = await readCategories();
+    next = cleanProjects(body?.projects, categories);
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 400 });
   }

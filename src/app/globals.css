@@ -1378,15 +1378,19 @@ html.menu-open .nav__burger span:last-child {
   color: var(--ink-2);
   transition: color 0.2s, padding 0.3s var(--ease);
 }
-.svc__index a .mono {
-  font-size: 10.5px;
+.svc__index .svc-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  align-self: center;
   color: var(--muted);
+  transition: color 0.2s;
 }
 .svc__index a:hover {
   color: var(--ink);
   padding-left: 6px;
 }
-.svc__index a:hover .mono {
+.svc__index a:hover .svc-icon {
   color: var(--blue-hi);
 }
 .svc__list {
@@ -1869,9 +1873,9 @@ html.menu-open .nav__burger span:last-child {
   width: 100%;
   height: auto;
 }
-@media (min-width: 800px) {
-  .gallery { grid-template-columns: 1fr 1fr; }
-  .gallery__item:nth-child(3n + 1) { grid-column: 1 / -1; }
+/* two columns side by side; no image spans the full width */
+@media (min-width: 700px) {
+  .gallery { grid-template-columns: 1fr 1fr; align-items: start; }
 }
 .next-project {
   border-top: 1px solid var(--line);

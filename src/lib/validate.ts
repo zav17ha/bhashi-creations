@@ -1,4 +1,4 @@
-import { categories, type Project } from "@/content/projects";
+import { APPAREL, type Project } from "@/content/projects";
 import type { ClientGroup } from "@/content/site";
 
 const str = (v: unknown, max = 2000) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -51,7 +51,7 @@ export const slugify = (s: string) =>
     .slice(0, 80);
 
 /** Validates and normalises a project list sent by the admin. Throws on bad input. */
-export function cleanProjects(input: unknown): Project[] {
+export function cleanProjects(input: unknown, allowedCategories: string[]): Project[] {
   if (!Array.isArray(input)) throw new Error("Expected a list of projects.");
   if (input.length > 500) throw new Error("Too many projects.");
   const seen = new Set<string>();
@@ -64,8 +64,9 @@ export function cleanProjects(input: unknown): Project[] {
     if (!slug) throw new Error(`"${title}" needs a URL slug.`);
     if (seen.has(slug)) throw new Error(`Two projects use the URL "${slug}". Slugs must be unique.`);
     seen.add(slug);
-    const category = str(r.category) as Project["category"];
-    if (!categories.includes(category)) throw new Error(`"${title}" has an unknown category.`);
+    const category = str(r.category, 40);
+    if (category !== APPAREL && !allowedCategories.includes(category))
+      throw new Error(`"${title}" uses the category "${category}", which doesn't exist. Pick another category.`);
     // Kits only have a title and image, so their summary falls back to the title.
     const summary = str(r.summary, 300) || (category === "Apparel" ? title : "");
     if (!summary) throw new Error(`"${title}" needs a one-line summary.`);
@@ -120,5 +121,21 @@ export function cleanClientGroups(input: unknown): ClientGroup[] {
       return logo ? { name, logo } : { name };
     });
     return { id, label, clients };
+  });
+}
+
+/** Validates the portfolio category list sent by the admin. Throws on bad input. */
+export function cleanCategories(input: unknown): string[] {
+  if (!Array.isArray(input)) throw new Error("Expected a list of categories.");
+  if (input.length > 30) throw new Error("Too many categories (max 30).");
+  const seen = new Set<string>();
+  return input.map((raw, i) => {
+    const name = str(raw, 40);
+    if (!name) throw new Error(`Category ${i + 1} needs a name.`);
+    if (name.toLowerCase() === APPAREL.toLowerCase())
+      throw new Error(`"${APPAREL}" is reserved for the Apparel page. Use another name.`);
+    if (seen.has(name.toLowerCase())) throw new Error(`"${name}" is listed twice.`);
+    seen.add(name.toLowerCase());
+    return name;
   });
 }

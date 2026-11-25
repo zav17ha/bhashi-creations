@@ -14,7 +14,7 @@ function seeded(str: string) {
   };
 }
 
-const CODES: Record<Project["category"], string> = {
+const KNOWN: Record<string, string> = {
   Apparel: "APP",
   "Graphic Design": "GFX",
   "3D": "3D",
@@ -22,6 +22,15 @@ const CODES: Record<Project["category"], string> = {
   Motion: "MOT",
   Marketing: "MKT",
 };
+/** Short code printed on generated covers; derived from the name for custom categories. */
+const codeFor = (category: string) =>
+  KNOWN[category] ??
+  (category.match(/[A-Za-z0-9]+/g) ?? ["WRK"])
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 3)
+    .toUpperCase()
+    .padEnd(2, "X");
 
 /**
  * Generated artwork used until a real cover image is added:
@@ -80,7 +89,7 @@ export function GeneratedCover({ project, index }: { project: Project; index: nu
         ),
       )}
       <text x="20" y="282" className="gen-cover__code">
-        {CODES[project.category]}/{String(index + 1).padStart(2, "0")}
+        {codeFor(project.category)}/{String(index + 1).padStart(2, "0")}
       </text>
     </svg>
   );

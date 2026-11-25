@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { categories, type Category, type Project } from "@/content/projects";
+import { APPAREL, type Category, type Project } from "@/content/projects";
 import { slugify } from "@/lib/validate";
 import { GalleryField, SingleMedia } from "./MediaFields";
 import { discardUploads, type StorageMode } from "./upload";
@@ -24,11 +24,11 @@ type Draft = {
   featured: boolean;
 };
 
-const toDraft = (p: Project | undefined, apparel: boolean): Draft => ({
+const toDraft = (p: Project | undefined, apparel: boolean, categories: string[]): Draft => ({
   title: p?.title ?? "",
   slug: p?.slug ?? "",
   client: p?.client ?? "",
-  category: apparel ? "Apparel" : p?.category ?? "Graphic Design",
+  category: apparel ? APPAREL : p?.category ?? categories[0] ?? "",
   year: p?.year ?? String(new Date().getFullYear()),
   summary: p?.summary ?? "",
   description: (p?.description ?? []).join("\n\n"),
@@ -68,8 +68,10 @@ export function ProjectEditor({
   onSave,
   onCancel,
   variant = "portfolio",
+  categories = [],
 }: {
   variant?: "portfolio" | "apparel";
+  categories?: string[];
   project?: Project;
   storage: StorageMode;
   takenSlugs: string[];
@@ -77,7 +79,7 @@ export function ProjectEditor({
   onCancel: () => void;
 }) {
   const apparel = variant === "apparel";
-  const [d, setD] = useState<Draft>(() => toDraft(project, apparel));
+  const [d, setD] = useState<Draft>(() => toDraft(project, apparel, categories));
   const [slugTouched, setSlugTouched] = useState(!!project);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -157,12 +159,11 @@ export function ProjectEditor({
               </label>
               <label className="field">
                 <span className="field__label">Category *</span>
-                <select value={d.category} onChange={(e) => set("category", e.target.value as Category)}>
-                  {categories
-                    .filter((c) => c !== "Apparel")
-                    .map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
+                <select value={d.category} onChange={(e) => set("category", e.target.value as Category)} required>
+                  {!categories.includes(d.category) && <option value={d.category}>{d.category || "Choose…"}</option>}
+                  {categories.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
                 </select>
               </label>
               <label className="field">

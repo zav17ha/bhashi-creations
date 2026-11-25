@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { categories, type Category, type Project } from "@/content/projects";
+import type { Project } from "@/content/projects";
 import { ProjectCard } from "./ProjectCard";
 
-export function PortfolioGrid({ projects }: { projects: Project[] }) {
-  const [active, setActive] = useState<Category | "All">("All");
+export function PortfolioGrid({ projects, categories }: { projects: Project[]; categories: string[] }) {
+  const [active, setActive] = useState<string>("All");
   const list = useMemo(
     () => projects.map((p, i) => ({ p, i })).filter(({ p }) => active === "All" || p.category === active),
     [active, projects],
@@ -19,7 +19,7 @@ export function PortfolioGrid({ projects }: { projects: Project[] }) {
   return (
     <>
       <div className="filters" role="tablist" aria-label="Filter projects by category">
-        {(["All", ...categories] as const).map((c) => {
+        {["All", ...categories].map((c) => {
           const n = c === "All" ? projects.length : counts.get(c) ?? 0;
           if (!n) return null;
           return (

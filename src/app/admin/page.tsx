@@ -1,7 +1,7 @@
 import { AdminApp } from "@/components/admin/AdminApp";
 import { AdminLogin } from "@/components/admin/AdminLogin";
 import { adminConfigured, isAdmin } from "@/lib/auth";
-import { readClients, readProjects, storageMode } from "@/lib/store";
+import { readCategories, readClients, readProjects, storageMode } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +20,7 @@ export default async function AdminPage() {
     );
   }
   if (!(await isAdmin())) return <AdminLogin />;
-  const [{ projects, fromSeed }, clients] = await Promise.all([readProjects(), readClients()]);
+  const [{ projects, fromSeed }, clients, { categories }] = await Promise.all([readProjects(), readClients(), readCategories()]);
   // Names only (never values), to help diagnose an unconnected store.
   const blobEnv = Object.keys(process.env).filter((k) => /BLOB/i.test(k)).sort();
   return (
@@ -31,6 +31,7 @@ export default async function AdminPage() {
       clients={clients.groups}
       clientsFromSeed={clients.fromSeed}
       blobEnv={blobEnv}
+      categories={categories}
     />
   );
 }

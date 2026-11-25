@@ -14,7 +14,7 @@ import { createHash } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
-import { projects as seedProjects, type Project } from "@/content/projects";
+import { projects as seedProjects, starterCategories, type Project } from "@/content/projects";
 import { clientGroups as seedClients, type ClientGroup } from "@/content/site";
 
 export type StorageMode = "blob" | "local" | "none";
@@ -32,8 +32,8 @@ export function storageMode(): StorageMode {
   return "local";
 }
 
-type Doc = "projects" | "clients";
-const DATA_PREFIX: Record<Doc, string> = { projects: "data/projects-", clients: "data/clients-" };
+type Doc = "projects" | "clients" | "categories";
+const DATA_PREFIX: Record<Doc, string> = { projects: "data/projects-", clients: "data/clients-", categories: "data/categories-" };
 const LOCAL_DIR = path.join(process.cwd(), ".data");
 const localFile = (doc: Doc) => path.join(LOCAL_DIR, `${doc}.json`);
 export const LOCAL_UPLOADS = path.join(LOCAL_DIR, "uploads");
@@ -119,6 +119,25 @@ export async function getProjectBySlug(slug: string) {
 export async function saveProjects(projects: Project[]) {
   await writeDoc("projects", { projects });
   revalidateTag("projects", { expire: 0 });
+  revalidatePath("/", "layout");
+}
+
+/* ---------- portfolio categories (filter bar) ---------- */
+
+export async function readCategories(): Promise<{ categories: string[]; fromSeed: boolean }> {
+  const stored = (await readDoc("categories"))?.categories as string[] | undefined;
+  return stored ? { categories: stored, fromSeed: false } : { categories: starterCategories, fromSeed: true };
+}
+
+export const getCategories = unstable_cache(
+  async () => (await readCategories()).categories,
+  ["categories", fingerprint(starterCategories)],
+  { tags: ["categories"] },
+);
+
+export async function saveCategories(categories: string[]) {
+  await writeDoc("categories", { categories });
+  revalidateTag("categories", { expire: 0 });
   revalidatePath("/", "layout");
 }
 

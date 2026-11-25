@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PortfolioGrid } from "@/components/PortfolioGrid";
 import { Reveal, SplitText } from "@/components/Reveal";
-import { getPortfolio } from "@/lib/store";
+import { getCategories, getPortfolio } from "@/lib/store";
 import { site } from "@/content/site";
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Portfolio() {
-  const projects = await getPortfolio();
+  const [projects, categories] = await Promise.all([getPortfolio(), getCategories()]);
   return (
     <>
       <section className="page-hero container">
@@ -18,7 +18,7 @@ export default async function Portfolio() {
         <SplitText as="h1" className="display" text={"Selected\nworks."} stagger={90} />
       </section>
       <section className="container portfolio">
-        <PortfolioGrid projects={projects} />
+        <PortfolioGrid projects={projects} categories={categories} />
         <Reveal className="portfolio__more">
           <p className="muted">
             More work lives on{" "}

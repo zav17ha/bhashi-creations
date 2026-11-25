@@ -52,7 +52,7 @@ export default async function Home() {
       <section className="section container split-sec">
         <div className="split-sec__head">
           <p className="eyebrow">The studio</p>
-          <SplitText className="title" text={"One studio.\nEvery discipline."} />
+          <SplitText className="title" text={"One studio.\nEvery perspective."} />
         </div>
         <div className="split-sec__body">
           <Reveal>
@@ -83,7 +83,7 @@ export default async function Home() {
         <div className="section__head">
           <div>
             <p className="eyebrow">What we do</p>
-            <SplitText className="title" text={"Disciplines"} />
+            <SplitText className="title" text={"Perspectives"} />
           </div>
           <TLink href="/services" className="link-arrow">
             <Scramble text="All services" /> <span aria-hidden="true">→</span>
@@ -111,7 +111,7 @@ export default async function Home() {
         </Reveal>
         <div className="founder__copy">
           <p className="eyebrow">The founder</p>
-          <SplitText className="founder__quote" text={"Every pixel,\nwith purpose."} />
+          <SplitText className="founder__quote" text={"The mind,\nbehind the pixels."} />
           <Reveal delay={200}>
             <p className="founder__name">{site.owner}</p>
             <p className="muted">
